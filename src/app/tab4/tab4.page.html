@@ -1,0 +1,194 @@
+<!-- Tab4: Privacy & Security Requirements -->
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Privacy & Security</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Collapsible header for iOS -->
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Privacy & Security</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="ion-padding">
+    <p class="intro-text">
+      This page provides a comprehensive analysis of privacy and security considerations for this
+      mobile inventory management application, aligned with PROG2005 Programming Mobile Systems
+      and the Australian Privacy Act 1988.
+    </p>
+
+    <!-- Section 1: Core Security Requirements -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="lock-closed" color="primary"></ion-icon>
+          Core Security Requirements
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <h3>Input Validation & Data Integrity</h3>
+        <ul>
+          <li>Strict client-side input validation enforces type safety: item names and supplier names accept only letters, spaces, and hyphens; quantity and price accept only positive integers</li>
+          <li>TypeScript interfaces and enums guarantee that all data conforms to the predefined schema (InventoryItem, Category, StockStatus), preventing type-related vulnerabilities at compile time</li>
+          <li>Server-side validation on the REST API provides a secondary defence layer, rejecting malformed or invalid payloads</li>
+          <li>Real-time field validation provides immediate user feedback, reducing the chance of submitting erroneous data</li>
+        </ul>
+
+        <h3>Secure Data Transmission</h3>
+        <ul>
+          <li>All communication with the server uses HTTPS (TLS encryption) to protect data in transit against eavesdropping, tampering, and man-in-the-middle attacks</li>
+          <li>JSON-formatted API requests follow RESTful conventions with proper Content-Type headers</li>
+          <li>No sensitive authentication tokens or API keys are stored on the device, minimising the attack surface if the device is compromised</li>
+          <li>URL encoding (encodeURIComponent) is applied to item names in API requests to prevent injection via URL manipulation</li>
+        </ul>
+
+        <h3>User Action Confirmation</h3>
+        <ul>
+          <li>Delete operations require explicit user confirmation via Ionic AlertController dialogs, preventing accidental data loss</li>
+          <li>All data modification actions (add, update, delete) provide immediate visual feedback through Toast notifications</li>
+          <li>The server enforces business rules such as forbidding deletion of the "Laptop" item, ensuring at least one record persists for verification</li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Section 2: Privacy Considerations & Australian Privacy Act -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="eye-off" color="primary"></ion-icon>
+          Privacy Considerations &amp; Australian Privacy Act
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <h3>Australian Privacy Principles (APPs) Compliance</h3>
+        <ul>
+          <li><strong>APP 3 (Collection of personal information):</strong> This application does not collect personal information. Only business inventory data (item names, quantities, prices) is transmitted to the server</li>
+          <li><strong>APP 6 (Use or disclosure of personal information):</strong> Since no personal information is collected, there is no risk of misuse or unauthorised disclosure</li>
+          <li><strong>APP 8 (Cross-border disclosure):</strong> All data remains on an Australian university-managed server (prog2005.it.scu.edu.au), with no cross-border data transfer</li>
+          <li><strong>APP 11 (Security of personal information):</strong> While the data handled is not personal information, the same security standards (HTTPS, input validation, access controls) are applied to all data</li>
+        </ul>
+
+        <h3>Notifiable Data Breaches (NDB) Scheme</h3>
+        <ul>
+          <li>Although this educational application does not handle personal information, the architecture supports compliance with the NDB scheme should personal data be introduced in future versions</li>
+          <li>HTTPS encryption and server-side access controls would form the basis of "reasonable steps" to protect data as required by the NDB scheme</li>
+        </ul>
+
+        <h3>Mobile-Specific Privacy Risks Mitigation</h3>
+        <ul>
+          <li>The app does not request unnecessary device permissions (camera, location, contacts, storage), following the principle of data minimisation</li>
+          <li>No background data processing — the app only transmits data when the user actively performs an action</li>
+          <li>Compatible with mobile OS privacy features including app permissions management and data clearing (iOS Settings, Android App Info)</li>
+          <li>Ionic framework ensures the app runs in a secure WebView container with the standard browser security model (same-origin policy, CSP)</li>
+          <li>No analytics or tracking libraries (e.g., Google Analytics, Firebase) are integrated, eliminating third-party data collection</li>
+        </ul>
+
+        <h3>Data Storage on Remote Server</h3>
+        <ul>
+          <li>Inventory data is stored on a university-managed server (prog2005.it.scu.edu.au) governed by institutional IT security policies</li>
+          <li>Users should be aware that inventory data is stored remotely and could be accessed by server administrators or other students on the shared server</li>
+          <li>It is strongly recommended not to enter real sensitive business data in this educational application</li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Section 3: Ionic & Capacitor Mobile Architecture Security -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="finger-print" color="primary"></ion-icon>
+          Ionic &amp; Capacitor Mobile Architecture Security
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <h3>Hybrid Mobile Architecture Security Model</h3>
+        <ul>
+          <li><strong>WebView sandboxing:</strong> The Ionic app runs within a sandboxed WebView, inheriting browser security features such as same-origin policy, Content Security Policy (CSP), and cookie isolation</li>
+          <li><strong>Capacitor secure bridge:</strong> Capacitor provides a secure bridge between the web layer and native platform APIs, ensuring that native functionality (haptics, keyboard, status bar) is accessed through well-defined, auditable interfaces</li>
+          <li><strong>Code signing:</strong> When deployed to app stores, the application package is code-signed, preventing tampering and assuring users of the app's authenticity</li>
+          <li><strong>No local storage of credentials:</strong> The application does not store any login credentials, API keys, or tokens on the device, eliminating the risk of credential theft from local storage</li>
+        </ul>
+
+        <h3>Native Device Features (Capacitor Plugins)</h3>
+        <ul>
+          <li><strong>Haptics:</strong> The app uses Capacitor Haptics for tactile feedback on user actions, demonstrating mobile-native integration without compromising security</li>
+          <li><strong>Keyboard management:</strong> Capacitor Keyboard plugin handles native keyboard interactions, ensuring input fields behave consistently across platforms</li>
+          <li><strong>Status bar:</strong> Capacitor StatusBar plugin provides native status bar configuration for a seamless mobile experience</li>
+          <li>All native plugins are accessed through Capacitor's permission model, which follows platform-specific security conventions</li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Section 4: Ongoing Security Best Practices -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="shield" color="primary"></ion-icon>
+          Ongoing Security Best Practices
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ul>
+          <li><strong>Regular dependency updates:</strong> Ionic 8, Angular 20, and Capacitor 8 dependencies are kept up to date to patch known CVEs (Common Vulnerabilities and Exposures)</li>
+          <li><strong>Secure coding practices:</strong> Angular's built-in template sanitisation prevents XSS (Cross-Site Scripting) attacks; TypeScript's static type checking prevents type confusion vulnerabilities</li>
+          <li><strong>API error handling:</strong> Proper error handling on both client and server prevents sensitive server information (stack traces, database schemas) from being exposed to the client</li>
+          <li><strong>Cross-Origin Resource Sharing (CORS):</strong> The server API is configured to only accept requests from authorised origins, preventing unauthorised cross-origin access</li>
+          <li><strong>User education:</strong> This privacy page and the contextual help widget on every page provide transparent guidance on secure app usage</li>
+          <li><strong>Principle of least privilege:</strong> The app only requests the minimum device capabilities needed, and all API operations are scoped to the specific inventory data model</li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Section 5: Security FAQ with Accordion -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="document-text" color="primary"></ion-icon>
+          Security FAQ
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-accordion-group>
+          <ion-accordion value="first">
+            <ion-item slot="header">
+              <ion-label>What data does this app store on my device?</ion-label>
+            </ion-item>
+            <div class="ion-padding" slot="content">
+              This application does not store any data locally on your device. All inventory data is fetched from and sent to the remote server (prog2005.it.scu.edu.au) in real time. No cookies, local storage, or SQLite databases are used.
+            </div>
+          </ion-accordion>
+          <ion-accordion value="second">
+            <ion-item slot="header">
+              <ion-label>Is my data encrypted?</ion-label>
+            </ion-item>
+            <div class="ion-padding" slot="content">
+              All data in transit between the app and the server is encrypted using HTTPS (TLS). However, data at rest on the server is managed by the server's security policies. You should not enter sensitive business data as the server is shared among students.
+            </div>
+          </ion-accordion>
+          <ion-accordion value="third">
+            <ion-item slot="header">
+              <ion-label>What happens if I lose my device?</ion-label>
+            </ion-item>
+            <div class="ion-padding" slot="content">
+              Since no data is stored locally on the device, there is no risk of data exposure from device loss. Your inventory data remains safely on the server and can be accessed from any device running this app.
+            </div>
+          </ion-accordion>
+          <ion-accordion value="fourth">
+            <ion-item slot="header">
+              <ion-label>How does the app prevent unauthorised modifications?</ion-label>
+            </ion-item>
+            <div class="ion-padding" slot="content">
+              The app uses strict input validation (names accept only letters, numbers only accept integers), confirmation dialogs for destructive actions (delete), and server-side business rules (e.g., "Laptop" cannot be deleted). These layers of protection prevent both accidental and malicious data modifications.
+            </div>
+          </ion-accordion>
+        </ion-accordion-group>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Help Widget -->
+  <app-help-widget pageTitle="Privacy & Security" [helpItems]="helpItems"></app-help-widget>
+</ion-content>
