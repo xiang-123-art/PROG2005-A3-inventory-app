@@ -1,0 +1,135 @@
+<!-- Tab1: List and Search Inventory Items -->
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Inventory List</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Collapsible header for iOS -->
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Inventory List</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Search bar with API search on submit -->
+  <ion-searchbar
+    [(ngModel)]="searchTerm"
+    (ionInput)="filterItems()"
+    (ionSubmit)="onSearchSubmit()"
+    placeholder="Search by item name..."
+    animated="true"
+    searchIcon="search"
+    cancelButtonIcon="close-circle">
+  </ion-searchbar>
+
+  <!-- API search indicator -->
+  <div *ngIf="isApiSearch" class="search-mode-indicator ion-padding-start">
+    <ion-chip color="primary" outline="true">
+      <ion-icon name="search"></ion-icon>
+      <ion-label>API Search Result</ion-label>
+    </ion-chip>
+    <ion-button size="small" fill="clear" (click)="clearSearch()">
+      <ion-icon name="close-circle" slot="icon-only"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- Pull-to-refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Skeleton loading -->
+  <div *ngIf="isLoading" class="ion-padding">
+    <ion-list>
+      <ion-item *ngFor="let i of [1,2,3]">
+        <ion-label>
+          <ion-skeleton-text [animated]="true" style="width: 60%"></ion-skeleton-text>
+          <p><ion-skeleton-text [animated]="true" style="width: 40%"></ion-skeleton-text></p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="errorMessage" class="error-container">
+    <ion-icon name="alert-circle" color="danger"></ion-icon>
+    <p>{{ errorMessage }}</p>
+    <ion-button size="small" (click)="loadItems()">Retry</ion-button>
+  </div>
+
+  <!-- Items count info -->
+  <ion-text *ngIf="!isLoading && !errorMessage && allItems.length > 0" color="medium" class="ion-padding-start">
+    <p>{{ filteredItems.length }} of {{ allItems.length }} items</p>
+  </ion-text>
+
+  <!-- Empty state with guidance -->
+  <div *ngIf="!isLoading && !errorMessage && allItems.length === 0" class="empty-state">
+    <ion-icon name="list" size="large" color="medium"></ion-icon>
+    <h3>No Inventory Data</h3>
+    <p>The server has no items yet. Go to the "Add" tab to create your first inventory record.</p>
+    <ion-button routerLink="/tabs/tab2" color="primary" size="default">
+      <ion-icon name="add" slot="start"></ion-icon>
+      Add First Item
+    </ion-button>
+  </div>
+
+  <!-- No search results -->
+  <div *ngIf="!isLoading && !errorMessage && allItems.length > 0 && filteredItems.length === 0" class="empty-state">
+    <ion-icon name="search" size="large" color="medium"></ion-icon>
+    <h3>No Items Found</h3>
+    <p>Try a different search term or clear the search to see all items.</p>
+    <ion-button (click)="clearSearch()" color="primary" fill="outline" size="default">
+      Clear Search
+    </ion-button>
+  </div>
+
+  <!-- Items list -->
+  <ion-list *ngIf="!isLoading && !errorMessage && filteredItems.length > 0">
+    <ion-card *ngFor="let item of filteredItems">
+      <ion-card-header>
+        <ion-card-title>
+          {{ item.item_name }}
+          <ion-badge *ngIf="item.featured_item === 1" color="tertiary" class="featured-badge">Featured</ion-badge>
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <ion-note>ID: {{ item.item_id }}</ion-note>
+            </ion-col>
+            <ion-col size="6">
+              <ion-badge [color]="getStockColor(item.stock_status)">{{ item.stock_status }}</ion-badge>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <p><strong>Category:</strong> {{ item.category }}</p>
+            </ion-col>
+            <ion-col size="6">
+              <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <p><strong>Price:</strong> ${{ item.price }}</p>
+            </ion-col>
+            <ion-col size="6">
+              <p><strong>Supplier:</strong> {{ item.supplier_name }}</p>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="item.special_note">
+            <ion-col size="12">
+              <p><strong>Note:</strong> {{ item.special_note }}</p>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </ion-list>
+
+  <!-- Help Widget -->
+  <app-help-widget pageTitle="Inventory List" [helpItems]="helpItems"></app-help-widget>
+</ion-content>

@@ -1,0 +1,173 @@
+<!-- Tab2: Add New Item & View Featured Items -->
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Add & Featured</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Collapsible header for iOS -->
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Add & Featured</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Segment control -->
+  <ion-segment [(ngModel)]="activeSegment" class="ion-padding">
+    <ion-segment-button value="add">
+      <ion-label>Add Item</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="featured">
+      <ion-label>Featured</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Add Item Section -->
+  <div *ngIf="activeSegment === 'add'" class="ion-padding">
+    <ion-list>
+      <ion-item>
+        <ion-input [(ngModel)]="newItem.itemName" label="Item Name *" labelPlacement="stacked"
+          placeholder="Enter item name (letters only)" type="text"
+          (ionInput)="onFieldChange('itemName')"
+          [class.ion-invalid]="validationErrors['itemName']"
+          [class.ion-touched]="validationErrors['itemName']"></ion-input>
+      </ion-item>
+      <ion-item *ngIf="validationErrors['itemName']" lines="none">
+        <ion-note color="danger" class="validation-error">{{ validationErrors['itemName'] }}</ion-note>
+      </ion-item>
+
+      <ion-item>
+        <ion-select [(ngModel)]="newItem.category" label="Category *" labelPlacement="stacked"
+          placeholder="Select category" interface="action-sheet"
+          (ionChange)="onFieldChange('category')"
+          [class.ion-invalid]="validationErrors['category']">
+          <ion-select-option *ngFor="let cat of categories" [value]="cat">{{ cat }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item *ngIf="validationErrors['category']" lines="none">
+        <ion-note color="danger" class="validation-error">{{ validationErrors['category'] }}</ion-note>
+      </ion-item>
+
+      <ion-item>
+        <ion-input [(ngModel)]="newItem.quantity" label="Quantity *" labelPlacement="stacked"
+          placeholder="Enter quantity (whole number >= 0)" type="number" min="0" step="1"
+          (ionInput)="onFieldChange('quantity')"
+          [class.ion-invalid]="validationErrors['quantity']"></ion-input>
+      </ion-item>
+      <ion-item *ngIf="validationErrors['quantity']" lines="none">
+        <ion-note color="danger" class="validation-error">{{ validationErrors['quantity'] }}</ion-note>
+      </ion-item>
+
+      <ion-item>
+        <ion-input [(ngModel)]="newItem.price" label="Price ($) *" labelPlacement="stacked"
+          placeholder="Enter price (whole number > 0)" type="number" min="1" step="1"
+          (ionInput)="onFieldChange('price')"
+          [class.ion-invalid]="validationErrors['price']"></ion-input>
+      </ion-item>
+      <ion-item *ngIf="validationErrors['price']" lines="none">
+        <ion-note color="danger" class="validation-error">{{ validationErrors['price'] }}</ion-note>
+      </ion-item>
+
+      <ion-item>
+        <ion-input [(ngModel)]="newItem.supplierName" label="Supplier Name *" labelPlacement="stacked"
+          placeholder="Enter supplier name (letters only)" type="text"
+          (ionInput)="onFieldChange('supplierName')"
+          [class.ion-invalid]="validationErrors['supplierName']"></ion-input>
+      </ion-item>
+      <ion-item *ngIf="validationErrors['supplierName']" lines="none">
+        <ion-note color="danger" class="validation-error">{{ validationErrors['supplierName'] }}</ion-note>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>Featured Item</ion-label>
+        <ion-toggle [(ngModel)]="newItem.featuredItem" slot="end"></ion-toggle>
+      </ion-item>
+
+      <ion-item>
+        <ion-textarea [(ngModel)]="newItem.specialNote" label="Special Note (optional)" labelPlacement="stacked"
+          placeholder="Optional note (e.g. best seller)" rows="2"></ion-textarea>
+      </ion-item>
+    </ion-list>
+
+    <ion-button expand="block" color="primary" (click)="onAddItem()" [disabled]="isSubmitting">
+      <ion-icon name="add" slot="start"></ion-icon>
+      {{ isSubmitting ? 'Adding...' : 'Add Item' }}
+    </ion-button>
+
+    <ion-button expand="block" color="medium" (click)="resetForm()" fill="outline">
+      Clear Form
+    </ion-button>
+  </div>
+
+  <!-- Featured Items Section -->
+  <div *ngIf="activeSegment === 'featured'" class="ion-padding">
+    <!-- Skeleton loading for featured items -->
+    <div *ngIf="isLoading">
+      <ion-list>
+        <ion-item *ngFor="let i of [1,2]">
+          <ion-label>
+            <ion-skeleton-text [animated]="true" style="width: 50%"></ion-skeleton-text>
+            <p><ion-skeleton-text [animated]="true" style="width: 30%"></ion-skeleton-text></p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <ion-button expand="block" fill="outline" (click)="loadFeaturedItems()" *ngIf="!isLoading">
+      <ion-icon name="refresh" slot="start"></ion-icon>
+      Refresh
+    </ion-button>
+
+    <!-- Empty state for featured items -->
+    <div *ngIf="!isLoading && featuredItems.length === 0" class="empty-state">
+      <ion-icon name="star-outline" size="large" color="medium"></ion-icon>
+      <h3>No Featured Items</h3>
+      <p>Add an item and mark it as featured to see it here.</p>
+    </div>
+
+    <ion-card *ngFor="let item of featuredItems">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="star" color="warning"></ion-icon> {{ item.item_name }}
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <ion-note>ID: {{ item.item_id }}</ion-note>
+            </ion-col>
+            <ion-col size="6">
+              <ion-badge [color]="getStockColor(item.stock_status)">{{ item.stock_status }}</ion-badge>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <p><strong>Category:</strong> {{ item.category }}</p>
+            </ion-col>
+            <ion-col size="6">
+              <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="6">
+              <p><strong>Price:</strong> ${{ item.price }}</p>
+            </ion-col>
+            <ion-col size="6">
+              <p><strong>Supplier:</strong> {{ item.supplier_name }}</p>
+            </ion-col>
+          </ion-row>
+          <ion-row *ngIf="item.special_note">
+            <ion-col size="12">
+              <p><strong>Note:</strong> {{ item.special_note }}</p>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Help Widget -->
+  <app-help-widget pageTitle="Add & Featured" [helpItems]="helpItems"></app-help-widget>
+</ion-content>
