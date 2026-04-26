@@ -1,0 +1,31 @@
+// Tab3 styles
+.validation-error {
+  font-size: 0.75rem;
+  padding: 2px 0;
+}
+
+ion-item.ion-invalid {
+  --border-color: var(--ion-color-danger);
+}
+
+.item-name-readonly {
+  --background: var(--ion-color-light);
+  opacity: 0.7;
+}
+
+.readonly-hint {
+  margin-bottom: 12px;
+
+  small {
+    color: var(--ion-color-medium);
+    font-style: italic;
+  }
+}
+
+.update-form {
+  margin-top: 16px;
+}
+
+ion-list {
+  margin-bottom: 16px;
+}

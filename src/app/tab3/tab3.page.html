@@ -1,0 +1,134 @@
+<!-- Tab3: Update & Delete Inventory Items -->
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Manage Items</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Collapsible header for iOS -->
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Manage Items</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Segment control -->
+  <ion-segment [(ngModel)]="activeSegment" class="ion-padding">
+    <ion-segment-button value="update">
+      <ion-label>Update</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="delete">
+      <ion-label>Delete</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Update Section -->
+  <div *ngIf="activeSegment === 'update'" class="ion-padding">
+    <!-- Item name search -->
+    <ion-list>
+      <ion-item>
+        <ion-input [(ngModel)]="updateForm.itemName" label="Item Name *" labelPlacement="stacked"
+          placeholder="Enter item name to search" type="text"
+          [readonly]="foundItem !== null"
+          [class.item-name-readonly]="foundItem !== null"></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <!-- Search button when item not found yet -->
+    <ion-button *ngIf="!foundItem" expand="block" (click)="findItemForUpdate()" [disabled]="isLoadingItem" fill="outline" color="primary">
+      <ion-icon name="search" slot="start"></ion-icon>
+      {{ isLoadingItem ? 'Searching...' : 'Find Item' }}
+    </ion-button>
+
+    <!-- Update form (shown after item is found) -->
+    <div *ngIf="foundItem" class="update-form">
+      <ion-text color="medium">
+        <p>Editing: <strong>{{ foundItem.item_name }}</strong> (ID: {{ foundItem.item_id }})</p>
+      </ion-text>
+      <ion-text color="medium" class="readonly-hint">
+        <p><small>Item name cannot be changed. It is used as the identifier for this record.</small></p>
+      </ion-text>
+
+      <ion-list>
+        <ion-item>
+          <ion-select [(ngModel)]="updateForm.category" label="Category" labelPlacement="stacked"
+            interface="action-sheet">
+            <ion-select-option *ngFor="let cat of categories" [value]="cat">{{ cat }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-input [(ngModel)]="updateForm.quantity" label="Quantity" labelPlacement="stacked"
+            placeholder="Enter new quantity" type="number" min="0" step="1"
+            (ionInput)="onFieldChange('quantity')"
+            [class.ion-invalid]="validationErrors['quantity']"></ion-input>
+        </ion-item>
+        <ion-item *ngIf="validationErrors['quantity']" lines="none">
+          <ion-note color="danger" class="validation-error">{{ validationErrors['quantity'] }}</ion-note>
+        </ion-item>
+
+        <ion-item>
+          <ion-input [(ngModel)]="updateForm.price" label="Price ($)" labelPlacement="stacked"
+            placeholder="Enter new price" type="number" min="1" step="1"
+            (ionInput)="onFieldChange('price')"
+            [class.ion-invalid]="validationErrors['price']"></ion-input>
+        </ion-item>
+        <ion-item *ngIf="validationErrors['price']" lines="none">
+          <ion-note color="danger" class="validation-error">{{ validationErrors['price'] }}</ion-note>
+        </ion-item>
+
+        <ion-item>
+          <ion-input [(ngModel)]="updateForm.supplierName" label="Supplier Name" labelPlacement="stacked"
+            placeholder="Enter new supplier name" type="text"
+            (ionInput)="onFieldChange('supplierName')"
+            [class.ion-invalid]="validationErrors['supplierName']"></ion-input>
+        </ion-item>
+        <ion-item *ngIf="validationErrors['supplierName']" lines="none">
+          <ion-note color="danger" class="validation-error">{{ validationErrors['supplierName'] }}</ion-note>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>Featured Item</ion-label>
+          <ion-toggle [(ngModel)]="updateForm.featuredItem" slot="end"></ion-toggle>
+        </ion-item>
+
+        <ion-item>
+          <ion-textarea [(ngModel)]="updateForm.specialNote" label="Special Note" labelPlacement="stacked"
+            placeholder="Enter new note" rows="2"></ion-textarea>
+        </ion-item>
+      </ion-list>
+
+      <ion-button expand="block" color="primary" (click)="onUpdateItem()" [disabled]="isSubmitting">
+        <ion-icon name="create" slot="start"></ion-icon>
+        {{ isSubmitting ? 'Updating...' : 'Update Item' }}
+      </ion-button>
+
+      <ion-button expand="block" color="medium" (click)="resetUpdateForm()" fill="outline">
+        Cancel
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Delete Section -->
+  <div *ngIf="activeSegment === 'delete'" class="ion-padding">
+    <ion-text color="medium" class="ion-margin-bottom">
+      <p>Enter the name of the item you want to delete. Note: "Laptop" cannot be deleted.</p>
+    </ion-text>
+
+    <ion-list>
+      <ion-item>
+        <ion-input [(ngModel)]="deleteItemName" label="Item Name *" labelPlacement="stacked"
+          placeholder="Enter item name to delete" type="text"></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <ion-button expand="block" color="danger" (click)="confirmDelete()" [disabled]="isSubmitting">
+      <ion-icon name="trash" slot="start"></ion-icon>
+      {{ isSubmitting ? 'Deleting...' : 'Delete Item' }}
+    </ion-button>
+  </div>
+
+  <!-- Help Widget -->
+  <app-help-widget pageTitle="Manage Items" [helpItems]="helpItems"></app-help-widget>
+</ion-content>
